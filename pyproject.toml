@@ -89,6 +89,7 @@ unfixable = []
 
 [tool.ruff.lint.extend-per-file-ignores]
 "**/tests/**/*.py" = ["S101"]  # ignores: S101 (assert is fine in tests)
+"**/db/migrations/**/*.py" = ["INP001", "ARG001", "D103", "E501"]
 
 [tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
@@ -98,6 +99,11 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
 
 [tool.ruff.lint.isort]
 case-sensitive = true
+
+[tool.aerich]
+tortoise_orm = "ns_app.db.config.TORTOISE_CONFIG"
+location = "ns_app/db/migrations/"
+src_folder = "./ns_app/"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
