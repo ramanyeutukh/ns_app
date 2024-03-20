@@ -9,6 +9,7 @@ class ArchEnum(StrEnum):
     x32 = "x32"
     x64 = "x64"
 
+
 class MetadataModel(models.Model):
     """File metadata model."""
 
@@ -20,8 +21,8 @@ class MetadataModel(models.Model):
     number_of_exports = fields.IntField()
     hash = fields.BigIntField(unique=True, index=True)
 
-    class Meta: # noqa: D106
-        table="metadata"
+    class Meta:  # noqa: D106
+        table = "metadata"
 
     def __str__(self) -> str:
         return f"Metadata {self.id}: {self.hash}"

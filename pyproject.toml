@@ -1,3 +1,25 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+
+[tool.aerich]
+location = "ns_app/db/migrations/"
+src_folder = "./ns_app/"
+tortoise_orm = "ns_app.db.config.TORTOISE_CONFIG"
+
+[tool.mypy]
+allow_subclassing_any = true
+allow_untyped_calls = true
+allow_untyped_decorators = true
+ignore_missing_imports = true
+implicit_reexport = true
+namespace_packages = true
+pretty = true
+show_error_codes = true
+strict = true
+warn_return_any = false
+warn_unused_ignores = false
+
 [tool.poetry]
 authors = ["Roman Evtukh"]
 description = ""
@@ -25,19 +47,6 @@ yarl = "^1.9.4"
 mypy = "^1.9.0"
 pre-commit = "^3.6.2"
 ruff = "^0.3.2"
-
-[tool.mypy]
-allow_subclassing_any = true
-allow_untyped_calls = true
-allow_untyped_decorators = true
-ignore_missing_imports = true
-implicit_reexport = true
-namespace_packages = true
-pretty = true
-show_error_codes = true
-strict = true
-warn_return_any = false
-warn_unused_ignores = false
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -83,13 +92,13 @@ skip-magic-trailing-comma = false
 
 [tool.ruff.lint]
 fixable = ["ALL"]
-ignore = ["D100", "ANN101", "ANN204", "D105", "D203", "D212", "ISC001", "COM812"]
+ignore = ["D100", "ANN101", "ANN102", "ANN204", "D105", "D203", "D212", "ISC001", "COM812", "TD", "FIX002"]
 select = ["ALL"]
 unfixable = []
 
 [tool.ruff.lint.extend-per-file-ignores]
-"**/tests/**/*.py" = ["S101"]  # ignores: S101 (assert is fine in tests)
 "**/db/migrations/**/*.py" = ["INP001", "ARG001", "D103", "E501"]
+"**/tests/**/*.py" = ["S101"]  # ignores: S101 (assert is fine in tests)
 
 [tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
@@ -99,12 +108,3 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
 
 [tool.ruff.lint.isort]
 case-sensitive = true
-
-[tool.aerich]
-tortoise_orm = "ns_app.db.config.TORTOISE_CONFIG"
-location = "ns_app/db/migrations/"
-src_folder = "./ns_app/"
-
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]

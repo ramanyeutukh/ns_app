@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from ns_app.db.models.task_model import TaskModel
+from ns_app.db.models.task_model import TaskModel, TaskStatus
 
 
 class TaskDAO:
@@ -23,7 +23,7 @@ class TaskDAO:
         """
         return await TaskModel.get_or_none(id=task_id)
 
-    async def update(self, task_id: UUID, status: int) -> TaskModel | None:
+    async def update(self, task_id: UUID, status: TaskStatus) -> TaskModel | None:
         """
         Update task status.
 
