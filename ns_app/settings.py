@@ -16,6 +16,35 @@ class LogLevel(str, enum.Enum):
     FATAL = "FATAL"
 
 
+class RedisConfig(BaseModel):
+    """Redis configuration."""
+
+    host: str = "ns_app-redis"
+    port: int = 6379
+    user: str | None = None
+    password: str | None = None
+    base: int | None = None
+
+    @property
+    def url(self) -> URL:
+        """
+        Assemble REDIS URL from settings.
+
+        :return: redis URL.
+        """
+        path = ""
+        if self.base is not None:
+            path = f"/{self.base}"
+        return URL.build(
+            scheme="redis",
+            host=self.host,
+            port=self.port,
+            user=self.user,
+            password=self.password,
+            path=path,
+        )
+
+
 class DBConfig(BaseModel):
     """Database configuration."""
 
@@ -63,12 +92,16 @@ class Settings(BaseSettings):
 
     log_level: LogLevel = LogLevel.INFO
 
+    redis: RedisConfig = RedisConfig()
     db: DBConfig = DBConfig()
 
     model_config = SettingsConfigDict(
         env_file=".env",
-        env_prefix="NS_APP_",
+        env_prefix="NSAPP_",
+        env_nested_delimiter="__",
         env_file_encoding="utf-8",
+        extra="ignore",
+        case_sensitive=False,
     )
 
 

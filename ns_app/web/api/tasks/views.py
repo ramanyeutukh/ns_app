@@ -3,7 +3,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Request, Response
 
 from ns_app.db.dao.task_dao import TaskDAO
-from ns_app.db.model.task_model import TaskModel
+from ns_app.db.models.task_model import TaskModel
+from ns_app.tasks.worker import process_task_s3
 from ns_app.web.api.tasks.schema import TaskDTO
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -32,8 +33,7 @@ async def create_task_s3(
     :return: task.
     """
     task = await task_dao.create()
-    # TODO: Implement code to add task with amount to queue
-
+    process_task_s3.send(10, str(task.id))
     response.headers["Location"] = str(request.url_for("get_task", task_id=task.id))
 
     return task

@@ -1,0 +1,103 @@
+version: '3.9'
+
+
+x-common-settings: &common-settings
+  build:
+    context: .
+    dockerfile: ./deploy/Dockerfile
+    target: prod
+  image: ns_app:${NSAPP_VERSION:-latest}
+  env_file:
+  - .env
+  environment:
+    NSAPP_HOST: 0.0.0.0
+    NSAPP_DB__HOST: ns_app-db
+    NSAPP_DB__PORT: 5432
+    NSAPP_DB__USER: ns_app
+    NSAPP_DB__PASSWORD: ns_app
+    NSAPP_DB__BASE: ns_app
+    NSAPP_REDIS__HOST: ns_app-redis
+  networks:
+  - ns_app_network
+
+
+services:
+  api:
+    <<: *common-settings
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      dramatiq:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+
+  db:
+    image: postgres:13.8-bullseye
+    hostname: ns_app-db
+    environment:
+      POSTGRES_PASSWORD: "ns_app"
+      POSTGRES_USER: "ns_app"
+      POSTGRES_DB: "ns_app"
+    volumes:
+    - ns_app-db-data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: pg_isready -U ns_app
+      interval: 2s
+      timeout: 3s
+      retries: 40
+    networks:
+    - ns_app_network
+
+  migrator:
+    <<: *common-settings
+    restart: "no"
+    command: aerich upgrade
+    depends_on:
+      db:
+        condition: service_healthy
+
+  redis:
+    image: bitnami/redis:6.2.5
+    hostname: "ns_app-redis"
+    restart: always
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+    healthcheck:
+      test: redis-cli ping
+      interval: 2s
+      timeout: 3s
+      retries: 40
+    networks:
+    - ns_app_network
+
+  dramatiq:
+    <<: *common-settings
+    command: dramatiq ns_app.tasks.worker  --processes 1 --threads 1
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    healthcheck:
+      test: "pidof -x dramatiq"
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+
+volumes:
+  ns_app-db-data:
+    name: ns_app-db-data
+
+
+networks:
+  ns_app_network:
+    driver: bridge

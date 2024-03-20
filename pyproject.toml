@@ -22,7 +22,7 @@ warn_unused_ignores = false
 
 [tool.poetry]
 authors = ["Roman Evtukh"]
-description = ""
+description = "File analysis tool"
 maintainers = ["Roman Evtukh"]
 name = "ns_app"
 readme = "README.md"
@@ -31,6 +31,7 @@ version = "0.1.0"
 [tool.poetry.dependencies]
 aerich = "^0.7.2"
 asyncpg = "^0.29.0"
+dramatiq = {extras = ["redis", "watch"], version = "^1.16.0"}
 fastapi = "^0.110.0"
 httptools = "^0.6.1"
 orjson = "^3.9.15"

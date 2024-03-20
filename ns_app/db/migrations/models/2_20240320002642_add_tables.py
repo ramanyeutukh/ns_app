@@ -15,7 +15,7 @@ async def upgrade(db: BaseDBAsyncClient) -> str:
         CREATE INDEX IF NOT EXISTS "idx_metadata_hash_401c4b" ON "metadata" ("hash");
         COMMENT ON COLUMN "metadata"."arch" IS 'x32: x32\nx64: x64';
         COMMENT ON TABLE "metadata" IS 'File metadata model.';
-                CREATE TABLE IF NOT EXISTS "tasks" (
+        CREATE TABLE IF NOT EXISTS "tasks" (
             "id" UUID NOT NULL  PRIMARY KEY,
             "status" SMALLINT NOT NULL  DEFAULT 1
         );

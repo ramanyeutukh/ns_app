@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  api:
+    ports:
+      # Exposes application port.
+    - "8000:8000"
+    build:
+      target: dev
+    volumes:
+      # Adds current directory as volume.
+    - .:/app/src/
+    environment:
+      # Enables autoreload.
+      NSAPP_RELOAD: "True"
+
+  dramatiq:
+    # Runs dramatiq worker with live reload.
+    command: dramatiq ns_app.tasks.worker  --processes 1 --threads 1 --watch .
+    build:
+      target: dev
+
+  migrator:
+    build:
+      target: dev
