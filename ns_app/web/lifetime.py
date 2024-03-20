@@ -2,7 +2,7 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI
 
-from ns_app.redis.lifetime import init_redis, shutdown_redis
+from ns_app.services.redis.lifetime import init_redis, shutdown_redis
 
 
 def register_startup_event(app: FastAPI) -> Callable[[], Awaitable[None]]:

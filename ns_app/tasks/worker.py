@@ -3,20 +3,19 @@ from uuid import UUID
 import dramatiq
 from dramatiq.brokers.redis import RedisBroker
 from dramatiq.middleware.asyncio import AsyncIO
-from tortoise import Tortoise
 
-from ns_app.db.config import TORTOISE_CONFIG
-from ns_app.db.dao.task_dao import TaskDAO
-from ns_app.db.models.task_model import TaskStatus
+from ns_app.db.helpers import DramatiqDbMiddleware
 from ns_app.settings import settings
+from ns_app.tasks.helpers import db_task_context
 
-redis_broker = RedisBroker(url=str(settings.redis.url), middleware=[AsyncIO()])
+redis_broker = RedisBroker(url=str(settings.redis.url))
+redis_broker.add_middleware(AsyncIO())
+redis_broker.add_middleware(DramatiqDbMiddleware(), after=AsyncIO)
 dramatiq.set_broker(redis_broker)
 
 
 @dramatiq.actor
 async def process_task_s3(amount: int, task_id: str) -> None:
     """Task for processing S3 files."""
-    await Tortoise.init(config=TORTOISE_CONFIG)
-    await TaskDAO().update(UUID(task_id), TaskStatus.DONE)
-    print(f"Task done. Amount: {amount}")  # noqa: T201
+    async with db_task_context(UUID(task_id)):
+        print(f"Task done. Amount: {amount}")  # noqa: T201
