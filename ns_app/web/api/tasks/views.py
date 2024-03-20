@@ -10,8 +10,8 @@ from ns_app.web.api.tasks.schema import TaskDTO
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
-@router.get("/{task_id}", response_model=TaskDTO | None)
-async def get_task(task_id: UUID, task_dao: TaskDAO = Depends()) -> TaskModel | None:
+@router.get("/{task_id}")
+async def get_task(task_id: UUID, task_dao: TaskDAO = Depends()) -> TaskDTO | None:
     """
     Get task by uuid.
 
