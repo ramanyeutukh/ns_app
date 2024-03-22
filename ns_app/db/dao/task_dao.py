@@ -1,7 +1,8 @@
 from uuid import UUID
 
-from ns_app.db.models.task_model import TaskModel, TaskStatus
-from ns_app.dto.task_dto import TaskDTO
+from ns_app.db.models.task_model import TaskModel
+from ns_app.dto.task import TaskDTO
+from ns_app.enum.task import TaskStatus
 
 
 class TaskDAO:

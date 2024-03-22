@@ -1,15 +1,6 @@
-from enum import IntEnum
-
 from tortoise import fields, models
 
-
-class TaskStatus(IntEnum):
-    """Enum for task status."""
-
-    PENDING = 1
-    IN_PROGRESS = 2
-    DONE = 3
-    FAILED = 4
+from ns_app.enum.task import TaskStatus
 
 
 class TaskModel(models.Model):

@@ -1,13 +1,6 @@
-from enum import StrEnum
-
 from tortoise import fields, models
 
-
-class ArchEnum(StrEnum):
-    """Architecture enumeration."""
-
-    x32 = "x32"
-    x64 = "x64"
+from ns_app.enum.metadata import ArchEnum, FileType
 
 
 class MetadataModel(models.Model):
@@ -15,10 +8,10 @@ class MetadataModel(models.Model):
 
     id = fields.BigIntField(pk=True)
     path = fields.CharField(max_length=255)
-    file_type = fields.CharField(max_length=255)
-    arch = fields.CharEnumField(ArchEnum)
-    numer_of_imports = fields.IntField()
-    number_of_exports = fields.IntField()
+    file_type = fields.CharEnumField(FileType, null=True)
+    arch = fields.CharEnumField(ArchEnum, null=True)
+    numer_of_imports = fields.IntField(null=True)
+    number_of_exports = fields.IntField(null=True)
     hash = fields.BigIntField(unique=True, index=True)
 
     class Meta:  # noqa: D106

@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, Request, Response
 
 from ns_app.db.dao.task_dao import TaskDAO
 from ns_app.db.models.task_model import TaskModel
+from ns_app.dto.task import TaskDTO
 from ns_app.tasks.worker import process_task_s3
-from ns_app.web.api.tasks.schema import TaskDTO
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 

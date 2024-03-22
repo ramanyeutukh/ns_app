@@ -1,8 +1,7 @@
 from ns_app.settings import settings
 
 MODELS_MODULES: list[str] = [
-    "ns_app.db.models.files_model",
-    "ns_app.db.models.task_model",
+    "ns_app.db.models",
 ]
 
 TORTOISE_CONFIG = {

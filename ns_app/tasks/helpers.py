@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from uuid import UUID
 
 from ns_app.db.dao.task_dao import TaskDAO
-from ns_app.db.models.task_model import TaskStatus
+from ns_app.enum.task import TaskStatus
 
 logger = logging.getLogger(__name__)
 
