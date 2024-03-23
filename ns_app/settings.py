@@ -1,6 +1,7 @@
 import enum
+from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from yarl import URL
 
@@ -71,6 +72,61 @@ class DBConfig(BaseModel):
             path=f"/{self.base}",
         )
 
+    @property
+    def jdbc_config(self) -> dict[str, Any]:
+        """
+        Convert to JDBC configuration.
+
+        return: dict with JDBC configuration.
+        """
+        return {
+            "properties": {
+                "user": self.user,
+                "password": self.password,
+                "driver": "org.postgresql.Driver",
+            },
+            "url": f"jdbc:postgresql://{self.host}:{self.port}/{self.base}",
+        }
+
+
+class SparkConfig(BaseModel):
+    """Spark configuration."""
+
+    master: str = Field(default="local[*]", alias="spark.master")
+    app_name: str = Field(default="File processor", alias="spark.app.name")
+    executor_memory: str = Field(default="12g", alias="spark.executor.memory")
+    executor_cores: int = Field(default=2, alias="spark.executor.cores")
+    creds_provider: str = Field(
+        default="org.apache.hadoop.fs.s3a.AnonymousAWSCredentialsProvider",
+        alias="spark.hadoop.fs.s3a.aws.credentials.provider",
+    )
+
+    @property
+    def to_config(self) -> dict[str, Any]:
+        """
+        Convert to Spark configuration.
+
+        :return: dict with spark configuration.
+        """
+        return self.model_dump(by_alias=True)
+
+
+class S3Config(BaseModel):
+    """S3 configuration."""
+
+    region_name: str = "eu-central-1"
+    bucket: str = "s3-nord-challenge-data"
+
+    @property
+    def endpoint_url(self) -> str:
+        """Get S3 endpoint URL."""
+        return f"{self.region_name}.amazonaws.com"
+
+    @property
+    def folders(self) -> list[str]:
+        """Get S3 folders."""
+        return [f"{self.bucket}/0/", f"{self.bucket}/1/"]
+
 
 class Settings(BaseSettings):
     """
@@ -94,6 +150,8 @@ class Settings(BaseSettings):
 
     redis: RedisConfig = RedisConfig()
     db: DBConfig = DBConfig()
+    spark: SparkConfig = SparkConfig()
+    s3: S3Config = S3Config()
 
     model_config = SettingsConfigDict(
         env_file=".env",

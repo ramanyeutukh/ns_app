@@ -93,7 +93,7 @@ skip-magic-trailing-comma = false
 
 [tool.ruff.lint]
 fixable = ["ALL"]
-ignore = ["D100", "ANN101", "ANN102", "ANN204", "D105", "D203", "D212", "ISC001", "COM812", "TD", "FIX002"]
+ignore = ["D100", "ANN101", "ANN102", "ANN204", "D105", "D203", "D212", "ISC001", "COM812", "TD", "FIX002", "PD901"]
 select = ["ALL"]
 unfixable = []
 

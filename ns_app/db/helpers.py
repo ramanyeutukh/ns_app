@@ -31,6 +31,11 @@ class DramatiqDbMiddleware(Middleware):
         self.logger.info("Database closed")
 
 
+def get_metadata_table_name() -> str:
+    """Get metadata table name."""
+    return MetadataModel.Meta.table
+
+
 def get_table_model_columns(table_name: "str") -> list[str]:
     """
     Get db column names from the table.
