@@ -5,8 +5,6 @@ x-common-settings: &common-settings
   build:
     context: .
     dockerfile: ./deploy/Dockerfile
-    target: prod
-  image: ns_app:${NSAPP_VERSION:-latest}
   env_file:
   - .env
   environment:
@@ -17,6 +15,7 @@ x-common-settings: &common-settings
     NSAPP_DB__PASSWORD: ns_app
     NSAPP_DB__BASE: ns_app
     NSAPP_REDIS__HOST: ns_app-redis
+    NSAPP_SPARK__MASTER: spark://spark:7077
   networks:
   - ns_app_network
 
@@ -25,6 +24,7 @@ services:
   api:
     <<: *common-settings
     restart: always
+    command: python -m ns_app
     depends_on:
       db:
         condition: service_healthy
@@ -34,6 +34,32 @@ services:
         condition: service_healthy
       migrator:
         condition: service_completed_successfully
+
+  dramatiq:
+    <<: *common-settings
+    restart: always
+    image: ns_app_worker:${NSAPP_VERSION:-latest}
+    command: dramatiq ns_app.workers.tasks  --processes 1 --threads 1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      # migrator:
+        # condition: service_completed_successfully
+    healthcheck:
+      test: "pidof -x dramatiq"
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+  migrator:
+    <<: *common-settings
+    restart: "no"
+    command: aerich upgrade
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:13.8-bullseye
@@ -53,14 +79,6 @@ services:
     networks:
     - ns_app_network
 
-  migrator:
-    <<: *common-settings
-    restart: "no"
-    command: aerich upgrade
-    depends_on:
-      db:
-        condition: service_healthy
-
   redis:
     image: bitnami/redis:6.2.5
     hostname: "ns_app-redis"
@@ -75,23 +93,35 @@ services:
     networks:
     - ns_app_network
 
-  dramatiq:
+  spark:
     <<: *common-settings
-    command: dramatiq ns_app.tasks.worker  --processes 1 --threads 1
-    restart: always
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      migrator:
-        condition: service_completed_successfully
-    healthcheck:
-      test: "pidof -x dramatiq"
-      interval: 2s
-      timeout: 3s
-      retries: 40
+    environment:
+    - SPARK_MODE=master
+    - SPARK_MASTER_HOST=spark
+    - SPARK_MASTER_PORT=7077
+    - SPARK_WORKER_MEMORY=1G
+    - SPARK_WORKER_CORES=1
+    - SPARK_RPC_AUTHENTICATION_ENABLED=no
+    - SPARK_RPC_ENCRYPTION_ENABLED=no
+    - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+    - SPARK_SSL_ENABLED=no
+    - SPARK_USER=spark
+    - SPARK_PUBLIC_DNS=localhost
 
+  spark-worker:
+    <<: *common-settings
+    environment:
+    - SPARK_MODE=worker
+    - SPARK_MASTER_URL=spark://spark:7077
+    - SPARK_RPC_AUTHENTICATION_ENABLED=no
+    - SPARK_RPC_ENCRYPTION_ENABLED=no
+    - SPARK
+    - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+    - SPARK_SSL_ENABLED=no
+    - SPARK_USER=spark
+    - SPARK_PUBLIC_DNS=localhost
+    networks:
+    - ns_app_network
 
 volumes:
   ns_app-db-data:

@@ -5,8 +5,6 @@ services:
     ports:
       # Exposes application port.
     - "8000:8000"
-    build:
-      target: dev
     volumes:
       # Adds current directory as volume.
     - .:/app/src/
@@ -16,10 +14,13 @@ services:
 
   dramatiq:
     # Runs dramatiq worker with live reload.
-    command: dramatiq ns_app.tasks.worker  --processes 1 --threads 1 --watch .
-    build:
-      target: dev
+    command: dramatiq ns_app.workers.tasks  --processes 1 --threads 1 --watch /app/src/ns_app/workers/
 
-  migrator:
-    build:
-      target: dev
+  spark:
+    ports:
+    - '8080:8080'
+
+  spark-worker:
+    ports:
+    - '8081:8081'
+    - '4040:4040'

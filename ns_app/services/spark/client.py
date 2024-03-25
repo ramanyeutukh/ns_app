@@ -33,9 +33,9 @@ class SparkClient:
         df = df.dropDuplicates(["hash"])
         return self.writer.clean_duplicates(df, "hash")
 
-    def process_task(self) -> None:
+    def process_task(self) -> DataFrame:
         """Process a task."""
         df = self.read()
         df = self.update_columns(df)
         df = self.drop_duplicates(df)
-        self.write(df)
+        return self.write(df)

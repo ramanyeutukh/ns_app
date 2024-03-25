@@ -24,6 +24,7 @@ async def get_task(task_id: UUID, task_dao: TaskDAO = Depends()) -> TaskDTO | No
 async def create_task_s3(
     request: Request,
     response: Response,
+    limit: int = 100,
     dao: TaskDAO = Depends(),
 ) -> TaskDTO:
     """
@@ -32,7 +33,7 @@ async def create_task_s3(
     :return: task.
     """
     task = await dao.create()
-    process_task_s3.send(10, str(task.id))
+    process_task_s3.send(str(task.id), limit)
     response.headers["Location"] = str(request.url_for("get_task", task_id=task.id))
 
     return task

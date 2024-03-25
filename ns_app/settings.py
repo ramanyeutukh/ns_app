@@ -92,13 +92,18 @@ class DBConfig(BaseModel):
 class SparkConfig(BaseModel):
     """Spark configuration."""
 
-    master: str = Field(default="local[*]", alias="spark.master")
-    app_name: str = Field(default="File processor", alias="spark.app.name")
-    executor_memory: str = Field(default="12g", alias="spark.executor.memory")
-    executor_cores: int = Field(default=2, alias="spark.executor.cores")
+    master: str = Field(default="local[*]", serialization_alias="spark.master")
+    app_name: str = Field(
+        default="File processor",
+        serialization_alias="spark.app.name",
+    )
     creds_provider: str = Field(
         default="org.apache.hadoop.fs.s3a.AnonymousAWSCredentialsProvider",
-        alias="spark.hadoop.fs.s3a.aws.credentials.provider",
+        serialization_alias="spark.hadoop.fs.s3a.aws.credentials.provider",
+    )
+    jars: str = Field(
+        default="org.apache.hadoop:hadoop-aws:3.3.1,com.amazonaws:aws-java-sdk-bundle:1.11.950,org.postgresql:postgresql:42.2.5",
+        serialization_alias="spark.jars.packages",
     )
 
     @property
@@ -116,16 +121,13 @@ class S3Config(BaseModel):
 
     region_name: str = "eu-central-1"
     bucket: str = "s3-nord-challenge-data"
+    folders: list[str] = ["0", "1"]
+    page_size: int = 1000
 
     @property
     def endpoint_url(self) -> str:
         """Get S3 endpoint URL."""
         return f"{self.region_name}.amazonaws.com"
-
-    @property
-    def folders(self) -> list[str]:
-        """Get S3 folders."""
-        return [f"{self.bucket}/0/", f"{self.bucket}/1/"]
 
 
 class Settings(BaseSettings):
@@ -148,8 +150,8 @@ class Settings(BaseSettings):
 
     log_level: LogLevel = LogLevel.INFO
 
-    redis: RedisConfig = RedisConfig()
     db: DBConfig = DBConfig()
+    redis: RedisConfig = RedisConfig()
     spark: SparkConfig = SparkConfig()
     s3: S3Config = S3Config()
 
