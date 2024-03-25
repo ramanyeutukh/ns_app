@@ -45,8 +45,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      # migrator:
-        # condition: service_completed_successfully
+      migrator:
+        condition: service_completed_successfully
     healthcheck:
       test: "pidof -x dramatiq"
       interval: 2s
