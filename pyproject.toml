@@ -41,6 +41,7 @@ pydantic = "^2.6.3"
 pydantic-settings = "^2.2.1"
 pyspark = "^3.5.1"
 python = "^3.11.8"
+tortoise-orm = {extras = ["asyncpg"], version = "^0.20.0"}
 uvicorn = {version = "^0.28.0", extras = ["standard"]}
 uvloop = "^0.19.0"
 yarl = "^1.9.4"
