@@ -102,7 +102,7 @@ class SparkConfig(BaseModel):
         serialization_alias="spark.hadoop.fs.s3a.aws.credentials.provider",
     )
     jars: str = Field(
-        default="org.apache.hadoop:hadoop-aws:3.3.1,com.amazonaws:aws-java-sdk-bundle:1.11.950,org.postgresql:postgresql:42.2.5",
+        default="org.apache.hadoop:hadoop-aws:3.3.1,com.amazonaws:aws-java-sdk-bundle:1.12.698,org.postgresql:postgresql:42.2.5",
         serialization_alias="spark.jars.packages",
     )
 
@@ -120,7 +120,7 @@ class S3Config(BaseModel):
     """S3 configuration."""
 
     region_name: str = "eu-central-1"
-    bucket: str = "s3-nord-challenge-data"
+    bucket: str = "some-bucket"
     folders: list[str] = ["0", "1"]
     page_size: int = 1000
 

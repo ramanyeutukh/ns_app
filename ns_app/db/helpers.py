@@ -5,12 +5,7 @@ from dramatiq.middleware import Middleware
 from tortoise import Tortoise, connections
 
 from ns_app.db.config import TORTOISE_CONFIG
-from ns_app.db.models import MetadataModel, TaskModel
-
-DB_MAPPER = {
-    MetadataModel.Meta.table: MetadataModel,
-    TaskModel.Meta.table: TaskModel,
-}
+from ns_app.db.models import MetadataModel
 
 
 class DramatiqDbMiddleware(Middleware):
@@ -31,24 +26,7 @@ class DramatiqDbMiddleware(Middleware):
         self.logger.info("Database closed")
 
 
-def get_metadata_table_name() -> str:
+def get_metadata_table_details() -> tuple[str, list[str]]:
     """Get metadata table name."""
-    return MetadataModel.Meta.table
-
-
-def get_table_model_columns(table_name: "str") -> list[str]:
-    """
-    Get db column names from the table.
-
-    :param table_name: name of the table.
-
-    :raises ValueError: if the table is not found.
-    :return: list of db column names.
-    """
-    if table_name not in DB_MAPPER:
-        msg = f"Table {table_name} not found."
-        raise ValueError(msg)
-
-    return [
-        item["db_column"] for item in DB_MAPPER[table_name].describe()["data_fields"]
-    ]
+    columns = [item["db_column"] for item in MetadataModel.describe()["data_fields"]]
+    return MetadataModel.Meta.table, columns

@@ -4,10 +4,7 @@ from typing import Any
 from pyspark.sql import DataFrame, DataFrameReader, DataFrameWriter, SparkSession
 from pyspark.sql.functions import col
 
-from ns_app.db.helpers import (
-    get_metadata_table_name,
-    get_table_model_columns,
-)
+from ns_app.db.helpers import get_metadata_table_details
 from ns_app.settings import settings
 
 
@@ -33,7 +30,7 @@ class SparkDBWriter(BaseSparkWriter):
     def __init__(self, session: SparkSession) -> None:
         """Initialize the database."""
         self.session = session
-        self.table = get_metadata_table_name()
+        self.table, self.columns = get_metadata_table_details()
 
     def get_db(
         self,
@@ -81,12 +78,11 @@ class SparkDBWriter(BaseSparkWriter):
         :raises ValueError: if columns do not match.
         :return: DataFrame.
         """
-        db_columns = get_table_model_columns(self.table)
         if extra_columns:
-            db_columns.extend(extra_columns)
+            self.columns.extend(extra_columns)
 
-        if set(df.columns).issubset(set(db_columns)):
-            msg = f"Columns {df.columns} do not match {db_columns}."
+        if set(df.columns).issubset(set(self.columns)):
+            msg = f"Columns {df.columns} do not match {self.columns}."
             raise ValueError(msg)
 
-        return self.get_db(df.select(db_columns).write, mode=mode)
+        return self.get_db(df.select(self.columns).write, mode=mode)
